@@ -1,0 +1,11 @@
+D:\Repositorios\draw-form\diseño\bin\Debug\diseño.exe
+D:\Repositorios\draw-form\diseño\bin\Debug\diseño.pdb
+D:\Repositorios\draw-form\diseño\bin\Debug\diseño.xml
+D:\Repositorios\draw-form\diseño\obj\Debug\diseño.vbprojAssemblyReference.cache
+D:\Repositorios\draw-form\diseño\obj\Debug\diseño.Form1.resources
+D:\Repositorios\draw-form\diseño\obj\Debug\diseño.Resources.resources
+D:\Repositorios\draw-form\diseño\obj\Debug\diseño.vbproj.GenerateResource.cache
+D:\Repositorios\draw-form\diseño\obj\Debug\diseño.vbproj.CoreCompileInputs.cache
+D:\Repositorios\draw-form\diseño\obj\Debug\diseño.exe
+D:\Repositorios\draw-form\diseño\obj\Debug\diseño.xml
+D:\Repositorios\draw-form\diseño\obj\Debug\diseño.pdb
