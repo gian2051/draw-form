@@ -1,15 +1,18 @@
 ﻿Public Class Form1
-
     Private controlActual As Control = Nothing
+
+    Private inicioEnDiseñador As Boolean = False
     Private mouseInicial As Point
     Private ubicaInicial As Point
 
-#Region "Eventos de la plantilla de contorles"
+#Region "Eventos de Movimiento o desplazamiento"
 
     Private Sub presionarClic(sender As Object, e As MouseEventArgs)
         'al hacer clic sin soltar el clic izquierdo
         If e.Button = MouseButtons.Left Then
             controlActual = sender 'contenedor.Controls.Find(sender.ToString, False)(0)
+
+            inicioEnDiseñador = SplitContainer1.Panel2.Contains(controlActual)
             ubicaInicial = controlActual.Location
             mouseInicial = e.Location
         End If
@@ -28,35 +31,29 @@
             controlActual.Location = nuevaUbicacion
             lblControl.Text = controlActual.Location.ToString
 
-            If contenidoEnDiseñador() Then
-                controlActual.BringToFront()
-            End If
+            controlActual.BringToFront()
         End If
 
     End Sub
 
     Private Sub soltarMouse(sender As Object, e As MouseEventArgs)
         'se ejecuta cuando se suelta el boton del mouse
-        If controlActual Is Nothing Then
+        If controlActual Is Nothing Or e.Button <> MouseButtons.Left Then
             Exit Sub
         End If
 
-        Dim nuevaUbica As Point = controlActual.Location
-        nuevaUbica.X -= SplitContainer1.Panel1.Size.Width
-        Dim mm As Object = controlActual.GetType()
-        Dim coordenada As Point = controlActual.Location
-        If contenidoEnDiseñador() Then
-            crear(controlActual)
-            Dim nuevo As Control = crear(controlActual)
-            nuevo.Location = nuevaUbica
-            SplitContainer1.Panel2.Controls.Add(nuevo)
-            controles.Add(nuevo)
+        If contenidoEnDiseñador(controlActual.Location, SplitContainer1.Panel2, inicioEnDiseñador) Then 'si actualmente se encuentra en el diseñador
+            If Not inicioEnDiseñador Then
+                Dim nuevo As Control = crear(controlActual)
+                nuevo.Location = New Point(controlActual.Location.X - SplitContainer1.Panel1.Size.Width, controlActual.Location.Y)
+                SplitContainer1.Panel2.Controls.Add(nuevo)
+                controlActual.Location = ubicaInicial
+            End If
+        Else
+            controlActual.Location = ubicaInicial
         End If
 
-        controlActual.Location = ubicaInicial
         controlActual = Nothing
-
-        lblControl.Text = coordenada.ToString
     End Sub
 
     Private Function crear(ByVal original As Control) As Control
@@ -81,14 +78,29 @@
         nuevo.ForeColor = original.ForeColor
         nuevo.BackColor = original.BackColor
         nuevo.Text = original.Text
+        nuevo.ContextMenuStrip = ContextMenuStrip1
+
+        AddHandler nuevo.MouseDown, AddressOf presionarClic
+        AddHandler nuevo.MouseMove, AddressOf moverMouse
+        AddHandler nuevo.MouseUp, AddressOf soltarMouse
 
         Return nuevo
     End Function
 
 #End Region
 
+#Region "Eventos de los controles diseñados"
+
+    Private Sub diseño_ClicDerecho(sender As Object, e As MouseEventArgs)
+        If e.Button = MouseButtons.Left Then
+            controlActual = sender 'contenedor.Controls.Find(sender.ToString, False)(0)
+            ubicaInicial = controlActual.Location
+            mouseInicial = e.Location
+        End If
+    End Sub
+
+#End Region
     Private Sub Form1_Shown(sender As Object, e As EventArgs) Handles Me.Shown
-        contenedor = SplitContainer1.Panel2
         corregirX = SplitContainer1.Panel1.Size.Width
 
         AddHandler Label1.MouseDown, AddressOf presionarClic
@@ -118,28 +130,31 @@
 
     'siempre que los controles esten a la izquierda y el diseño del form a la derecha
     Private controles As New List(Of Control)
-    Private contenedor As Control
     Private corregirX As Integer
 
-    Private Function contenidoEnDiseñador()
-        If controlActual Is Nothing Then
-            Return False
-        End If
-
+    Private Function contenidoEnDiseñador(ByVal aEvaluar As Point, ByVal contenedor As Control, ByVal ubicacionCero As Boolean) As Boolean
         Dim ini As Point = contenedor.Location
         Dim fin As Point = contenedor.Size
-        fin.X += ini.X
-        fin.Y += ini.Y
 
-        Dim coordenada As Point = controlActual.Location
-        If coordenada.X >= ini.X AndAlso coordenada.X <= fin.X Then
-            If coordenada.Y <= fin.Y AndAlso coordenada.Y >= ini.Y Then
+        If ubicacionCero Then
+            ini = New Point(0, 0)
+        Else
+            fin.X += ini.X
+            fin.Y += ini.Y
+        End If
+
+        If aEvaluar.X >= ini.X AndAlso aEvaluar.X <= fin.X Then
+            If aEvaluar.Y <= fin.Y AndAlso aEvaluar.Y >= ini.Y Then
                 Return True
             End If
         End If
 
         Return False
     End Function
+
+    Private Sub PropiedadesToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles PropiedadesToolStripMenuItem.Click
+        Dim ee As Control = ContextMenuStrip1.SourceControl
+    End Sub
 
 End Class
 
